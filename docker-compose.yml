@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:17
+    container_name: 'cassa-postgres'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5435"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - .env
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+
+  web:
+    build:
+      context: .
+    image: promo-image
+    volumes:
+      - .:/app
+      - ./static:/app/static/
+      - ./media:/app/media/
+    env_file:
+      - .env
+    container_name: 'cassa-web'
+    command: gunicorn --workers=3 --bind 0.0.0.0:8000 core.wsgi:application
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    restart: always
+    environment:
+      DATABASE_URL: postgres://$DB_USER:$DB_PASSWORD@db:5432/$DB_NAME
+
+  bot:
+    build:
+      context: .
+    image: bot-image
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    container_name: bot-container
+    command: python manage.py runbot
+    restart: always
+
+
+volumes:
+  postgres_data:
+  static:
+  media:
