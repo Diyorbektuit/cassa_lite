@@ -50,7 +50,7 @@ services:
       - .env.docker
     depends_on:
       - db
-    container_name: bot-container
+    container_name: cassa-bot
     command: python manage.py runbot
     restart: always
 
