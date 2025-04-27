@@ -166,3 +166,4 @@ static
 backups
 media
 staticfiles
+.env.docker

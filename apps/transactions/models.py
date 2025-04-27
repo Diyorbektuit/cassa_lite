@@ -16,6 +16,7 @@ class Category(BaseModel):
     )
     type = models.CharField(max_length=20, choices=TypeChoice.choices)
     name = models.CharField(max_length=256)
+    icon = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.user} | {self.name}"
@@ -36,6 +37,7 @@ class Transaction(BaseModel):
 
     amount = models.PositiveIntegerField()
     name = models.CharField(max_length=512)
+    comment = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField()
 
     def __str__(self):

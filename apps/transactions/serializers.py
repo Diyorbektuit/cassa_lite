@@ -12,6 +12,7 @@ class CategorySerializer(serializers.ModelSerializer):
             'id',
             'name',
             'type',
+            'icon',
             'operations_count'
         )
 
@@ -40,6 +41,7 @@ class TransactionSerializerForGet(serializers.ModelSerializer):
             'type',
             'category',
             'amount',
+            'comment',
             'created_at'
         )
 
@@ -55,6 +57,7 @@ class TransactionSerializerForPostPatch(serializers.ModelSerializer):
             'name',
             'amount',
             'category',
+            'comment',
             'created_at'
         )
 
