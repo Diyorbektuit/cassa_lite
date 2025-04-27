@@ -26,8 +26,8 @@ services:
     image: promo-image
     volumes:
       - .:/app
-      - ./static:/app/static/
-      - ./media:/app/media/
+      - /var/www/cassa_static:/app/static/
+      - /var/www/cassa_media:/app/media/
     env_file:
       - .env.docker
     container_name: 'cassa-web'
