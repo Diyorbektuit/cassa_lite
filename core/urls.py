@@ -7,7 +7,8 @@ from .schema import swagger_urlpatterns
 
 v1_urls = [
     path('auth/', include('apps.user.urls.auth')),
-    path('', include('apps.transactions.urls'))
+    path('', include('apps.transactions.urls')),
+    path('profile', include('apps.user.urls.profile'))
 ]
 
 

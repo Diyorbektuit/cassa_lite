@@ -1,5 +1,5 @@
+from django.contrib.auth.models import AnonymousUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.exceptions import AuthenticationFailed
 
 
 class CustomJWTAuthentication(JWTAuthentication):
@@ -18,4 +18,4 @@ class CustomJWTAuthentication(JWTAuthentication):
             user = self.get_user(validated_token)
             return user, validated_token
         except Exception:
-            raise AuthenticationFailed('Invalid or expired token')
+            return AnonymousUser, None
