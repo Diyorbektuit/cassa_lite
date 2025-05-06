@@ -43,6 +43,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.SessionAuthentication",
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        "core.authentication.CustomJWTAuthentication",
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
@@ -98,6 +99,10 @@ DATABASES = {
         "HOST": SECURITY.DB_HOST,
         "PORT": SECURITY.DB_PORT,
         "ATOMIC_REQUESTS": True,
+    },
+    'test': {
+        'ENGINE': 'django.db.backends.sqlite3',  # Test uchun oddiy SQLite baza
+        'NAME': ':memory:',  # Xotira ichida ishlaydi
     },
 }
 

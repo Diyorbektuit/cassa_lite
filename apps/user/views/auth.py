@@ -1,4 +1,5 @@
 import requests
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
@@ -30,6 +31,7 @@ class GoogleCallbackView(APIView):
     def get(self, request):
         code = request.GET.get("code")
 
+        # 1. Google Token olish
         token_url = "https://accounts.google.com/o/oauth2/token"
         token_payload = {
             "code": code,
@@ -40,18 +42,47 @@ class GoogleCallbackView(APIView):
         }
         response = requests.post(token_url, data=token_payload)
 
-
-        access_token = response.json().get("access_token")
         if response.status_code != 200:
             return Response({"error": "Invalid token request"}, status=response.status_code)
+
+        access_token = response.json().get("access_token")
 
         user_url = "https://www.googleapis.com/oauth2/v1/userinfo"
         user_response = requests.get(
             user_url, headers={"Authorization": f"Bearer {access_token}"}
         )
 
-        info = user_create_or_update(user_response.json())
-        return redirect(f"{SECURITY.redirect_url}?access={info.get('access_token')}&refresh={info.get('refresh_token')}")
+        if user_response.status_code != 200:
+            return Response({"error": "Failed to fetch user info"}, status=user_response.status_code)
+
+        user_data = user_response.json()
+
+        info = user_create_or_update(user_data)
+
+        access = info.get("access_token")
+        refresh = info.get("refresh_token")
+
+        response = HttpResponse()
+        response.set_cookie(
+            key="access_token",
+            value=str(access),
+            httponly=True,
+            # secure=True,
+            # samesite="Lax",
+            max_age=60 * 60 * 24,  # 1 kun
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=str(refresh),
+            httponly=True,
+            # secure=True,
+            # samesite="Lax",
+            max_age=60 * 60 * 24 * 7,  # 7 kun
+        )
+        response.status_code = 302
+        response["Location"] = f"{SECURITY.redirect_url}?access={access}&refresh={refresh}"
+
+        return response
 
 
 class UserTelegramVerifyView(APIView):
@@ -62,6 +93,26 @@ class UserTelegramVerifyView(APIView):
 
         if verify_serializer.is_valid():
             user = verify_serializer.create(verify_serializer.validated_data)
-            return Response(data=verify_serializer.to_representation(user))
+            access = verify_serializer.to_representation(user).get("access_token")
+            refresh = verify_serializer.to_representation(user).get("refresh_token")
+            response = Response(data=verify_serializer.to_representation(user))
+            response.set_cookie(
+                key="access_token",
+                value=str(access),
+                httponly=True,
+                # secure=True,
+                # samesite="Lax",
+                max_age=60 * 60 * 24,
+            )
+            response.set_cookie(
+                key="refresh_token",
+                value=str(refresh),
+                httponly=True,
+                # secure=True,
+                # samesite="Lax",
+                max_age=60 * 60 * 24 * 7,
+            )
+            print(response)
+            return response
         else:
             return Response(data=verify_serializer.errors, status=400)
