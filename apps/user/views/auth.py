@@ -67,17 +67,19 @@ class GoogleCallbackView(APIView):
             key="access_token",
             value=str(access),
             httponly=True,
-            # secure=True,
-            # samesite="Lax",
+            secure=True,
+            samesite="Lax",
             max_age=60 * 60 * 24,  # 1 kun
+            domain=".kassalite.uz"
         )
         response.set_cookie(
             key="refresh_token",
             value=str(refresh),
             httponly=True,
-            # secure=True,
-            # samesite="Lax",
+            secure=True,
+            samesite="Lax",
             max_age=60 * 60 * 24 * 7,  # 7 kun
+            domain=".kassalite.uz"
         )
         response.status_code = 302
         response["Location"] = f"{SECURITY.redirect_url}?access={access}&refresh={refresh}"
@@ -100,19 +102,20 @@ class UserTelegramVerifyView(APIView):
                 key="access_token",
                 value=str(access),
                 httponly=True,
-                # secure=True,
-                # samesite="Lax",
+                secure=True,
+                samesite="Lax",
                 max_age=60 * 60 * 24,
+                domain=".kassalite.uz"
             )
             response.set_cookie(
                 key="refresh_token",
                 value=str(refresh),
                 httponly=True,
-                # secure=True,
-                # samesite="Lax",
+                secure=True,
+                samesite="Lax",
                 max_age=60 * 60 * 24 * 7,
+                domain=".kassalite.uz"
             )
-            print(response)
             return response
         else:
             return Response(data=verify_serializer.errors, status=400)
