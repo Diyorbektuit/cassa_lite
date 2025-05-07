@@ -18,4 +18,4 @@ class CustomJWTAuthentication(JWTAuthentication):
             user = self.get_user(validated_token)
             return user, validated_token
         except Exception:
-            return AnonymousUser, None
+            return None

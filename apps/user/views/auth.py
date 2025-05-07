@@ -31,7 +31,6 @@ class GoogleCallbackView(APIView):
     def get(self, request):
         code = request.GET.get("code")
 
-        # 1. Google Token olish
         token_url = "https://accounts.google.com/o/oauth2/token"
         token_payload = {
             "code": code,
@@ -63,41 +62,27 @@ class GoogleCallbackView(APIView):
         refresh = info.get("refresh_token")
 
         response = HttpResponse()
-        response.set_cookie(
-            key="access_token",
-            value=str(access),
-            httponly=True,
-            secure=True,
-            samesite="Lax",
-            max_age=60 * 60 * 24,  # 1 kun
-            domain=".kassalite.uz"
-        )
-        response.set_cookie(
-            key="refresh_token",
-            value=str(refresh),
-            httponly=True,
-            secure=True,
-            samesite="Lax",
-            max_age=60 * 60 * 24 * 7,  # 7 kun
-            domain=".kassalite.uz"
-        )
-        response.status_code = 302
-        response["Location"] = f"{SECURITY.redirect_url}?access={access}&refresh={refresh}"
-
-        return response
-
-
-class UserTelegramVerifyView(APIView):
-
-    @swagger_auto_schema(request_body=serializers.TelegramVerifySerializer)
-    def post(self, args, **kwargs):
-        verify_serializer = serializers.TelegramVerifySerializer(data=self.request.data)
-
-        if verify_serializer.is_valid():
-            user = verify_serializer.create(verify_serializer.validated_data)
-            access = verify_serializer.to_representation(user).get("access_token")
-            refresh = verify_serializer.to_representation(user).get("refresh_token")
-            response = Response(data=verify_serializer.to_representation(user))
+        current_domain = self.request.get_host().split('.')[1]
+        print(current_domain)
+        print(self.request.get_host())
+        if current_domain != 'kassalite.uz':
+            response.set_cookie(
+                key="access_token",
+                value=str(access),
+                httponly=True,
+                secure=False,
+                samesite="Lax",
+                max_age=60 * 60 * 24,
+            )
+            response.set_cookie(
+                key="refresh_token",
+                value=str(refresh),
+                httponly=True,
+                secure=False,
+                samesite="Lax",
+                max_age=60 * 60 * 24 * 7,
+            )
+        else:
             response.set_cookie(
                 key="access_token",
                 value=str(access),
@@ -116,6 +101,60 @@ class UserTelegramVerifyView(APIView):
                 max_age=60 * 60 * 24 * 7,
                 domain=".kassalite.uz"
             )
+        response.status_code = 302
+        response["Location"] = f"{SECURITY.redirect_url}"
+
+        return response
+
+
+class UserTelegramVerifyView(APIView):
+
+    @swagger_auto_schema(request_body=serializers.TelegramVerifySerializer)
+    def post(self, args, **kwargs):
+        verify_serializer = serializers.TelegramVerifySerializer(data=self.request.data)
+
+        if verify_serializer.is_valid():
+            user = verify_serializer.create(verify_serializer.validated_data)
+            access = verify_serializer.to_representation(user).get("access_token")
+            refresh = verify_serializer.to_representation(user).get("refresh_token")
+            response = Response(data=verify_serializer.to_representation(user))
+            current_domain = self.request.get_host().split('.')[1]
+            if current_domain != 'kassalite.uz':
+                response.set_cookie(
+                    key="access_token",
+                    value=str(access),
+                    httponly=True,
+                    secure=False,
+                    samesite="Lax",
+                    max_age=60 * 60 * 24,
+                )
+                response.set_cookie(
+                    key="refresh_token",
+                    value=str(refresh),
+                    httponly=True,
+                    secure=False,
+                    samesite="Lax",
+                    max_age=60 * 60 * 24 * 7,
+                )
+            else:
+                response.set_cookie(
+                    key="access_token",
+                    value=str(access),
+                    httponly=True,
+                    secure=True,
+                    samesite="Lax",
+                    max_age=60 * 60 * 24,
+                    domain=".kassalite.uz"
+                )
+                response.set_cookie(
+                    key="refresh_token",
+                    value=str(refresh),
+                    httponly=True,
+                    secure=True,
+                    samesite="Lax",
+                    max_age=60 * 60 * 24 * 7,
+                    domain=".kassalite.uz"
+                )
             return response
         else:
             return Response(data=verify_serializer.errors, status=400)
