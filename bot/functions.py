@@ -54,5 +54,5 @@ def get_code(telegram_id: int, first_name: str, last_name: str) -> dict:
 
 async def code_text(code: int) -> str:
     text = (f"🔒 Code: <code>{code}</code>\n"
-            f"🔗 Click and Login: <code>https://google.com</code>")
+            f"🔗 Click and Login: <code>https://account.kassalite.uz</code>")
     return text
