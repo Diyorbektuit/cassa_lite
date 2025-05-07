@@ -34,6 +34,8 @@ class TelegramVerifySerializer(serializers.Serializer):
     def to_representation(self, instance):
         return {
             "success": True,
+            "access_token": instance.tokens()["access"],
+            "refresh_token": instance.tokens()["refresh"],
         }
 
 
