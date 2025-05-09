@@ -2,8 +2,11 @@ import requests
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.user.utils import user_create_or_update
 from core.security import SECURITY
@@ -69,7 +72,7 @@ class GoogleCallbackView(APIView):
             httponly=True,
             secure=True,
             samesite="Lax",
-            max_age=60 * 60 * 24,  # 1 kun
+            max_age=60 * 60 * 24 * 10,  # 10 kun
             domain=".kassalite.uz"
         )
         response.set_cookie(
@@ -78,7 +81,7 @@ class GoogleCallbackView(APIView):
             httponly=True,
             secure=True,
             samesite="Lax",
-            max_age=60 * 60 * 24 * 7,  # 7 kun
+            max_age=60 * 60 * 24 * 30,  # 30 kun
             domain=".kassalite.uz"
         )
         response.status_code = 302
@@ -104,7 +107,7 @@ class UserTelegramVerifyView(APIView):
                 httponly=True,
                 secure=True,
                 samesite="Lax",
-                max_age=60 * 60 * 24,
+                max_age=60 * 60 * 24 * 10,
                 domain=".kassalite.uz"
             )
             response.set_cookie(
@@ -113,9 +116,31 @@ class UserTelegramVerifyView(APIView):
                 httponly=True,
                 secure=True,
                 samesite="Lax",
-                max_age=60 * 60 * 24 * 7,
+                max_age=60 * 60 * 24 * 30,
                 domain=".kassalite.uz"
             )
             return response
         else:
             return Response(data=verify_serializer.errors, status=400)
+
+
+class LogoutView(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, *args, **kwargs):
+        request = self.request
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except Exception:
+                return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+
+        response = Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
+
+        response.delete_cookie('access_token', domain=".kassalite.uz")
+        response.delete_cookie('refresh_token', domain=".kassalite.uz")
+
+        return response
