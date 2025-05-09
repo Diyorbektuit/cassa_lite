@@ -22,10 +22,14 @@ class CategoryChartSerializer(serializers.ModelSerializer):
         else:
             all_amount = user.transactions.aggregate(
                 all_amount=Sum('amount')
-            )['all_amount']
+            )['all_amount'] or 0
+
             category_amount = obj.transactions.aggregate(
                 all_amount=Sum('amount')
-            )['all_amount']
+            )['all_amount'] or 0
+
+            if all_amount == 0:
+                return 0
 
             percentage: int = (category_amount / all_amount) * 100
             return percentage
