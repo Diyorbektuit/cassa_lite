@@ -26,12 +26,13 @@ class UserManager(AbstractUserManager):
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
         extra_fields.setdefault('is_verified', True)
+        extra_fields.setdefault('auth_type', 'google')
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True.")
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
-        return self._create_user(username=username, password=password, **extra_fields)
+        return self._create_user(email=f"{username}@kassalite.uz", username=username, password=password, **extra_fields)
 
     def create_user(self, email=None, telegram_id=None, password=None, **extra_fields):
         if password is None:
