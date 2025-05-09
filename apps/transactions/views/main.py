@@ -3,9 +3,9 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 
-from apps.transactions import serializers
+from apps.transactions.serializers import main as serializers
 from apps.transactions.models import Category, Transaction
-from .filters import TransactionFilter
+from ..filters import TransactionFilter
 
 
 # Create your views here.

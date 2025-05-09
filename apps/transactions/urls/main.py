@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import CategoryViewSet, TransactionViewSet
+from apps.transactions.views.main import CategoryViewSet, TransactionViewSet
 
 router = DefaultRouter()
 
