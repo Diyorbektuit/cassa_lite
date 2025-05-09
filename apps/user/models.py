@@ -50,7 +50,7 @@ class User(AbstractUser, BaseModel):
         telegram = 'telegram'
         google = 'google'
 
-    telegram_id = models.IntegerField(unique=True, null=True, blank=True)
+    telegram_id = models.BigIntegerField(unique=True, null=True, blank=True)
     email = models.EmailField(unique=True, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     auth_type = models.CharField(max_length=20, choices=AuthTypeChoices.choices, null=False)
