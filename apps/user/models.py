@@ -13,7 +13,7 @@ class UserManager(AbstractUserManager):
         elif telegram_id is not None:
             user = self.model(email=email, username=telegram_id, **extra_fields)
         elif username is not None:
-            user = self.model(username=username, **extra_fields)
+            user = self.model(username=username, email=f"{username}@kassalite.uz", **extra_fields)
         else:
             raise ValueError("The given email or phone_number must be set")
 
@@ -32,7 +32,7 @@ class UserManager(AbstractUserManager):
             raise ValueError("Superuser must have is_staff=True.")
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
-        return self._create_user(email=f"{username}@kassalite.uz", username=username, password=password, **extra_fields)
+        return self._create_user(username=username, password=password, **extra_fields)
 
     def create_user(self, email=None, telegram_id=None, password=None, **extra_fields):
         if password is None:
