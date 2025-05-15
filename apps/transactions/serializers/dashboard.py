@@ -34,3 +34,8 @@ class CategoryChartSerializer(serializers.ModelSerializer):
             percentage: int = (category_amount / all_amount) * 100
             return percentage
 
+
+class MainStatsSerializer(serializers.Serializer):
+    pass
+
+

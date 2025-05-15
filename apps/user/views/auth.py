@@ -66,24 +66,41 @@ class GoogleCallbackView(APIView):
         refresh = info.get("refresh_token")
 
         response = HttpResponse()
-        response.set_cookie(
-            key="access_token",
-            value=str(access),
-            httponly=True,
-            secure=True,
-            samesite="Lax",
-            max_age=60 * 60 * 24 * 10,  # 10 kun
-            domain=".kassalite.uz"
-        )
-        response.set_cookie(
-            key="refresh_token",
-            value=str(refresh),
-            httponly=True,
-            secure=True,
-            samesite="Lax",
-            max_age=60 * 60 * 24 * 30,  # 30 kun
-            domain=".kassalite.uz"
-        )
+
+        if request.is_secure():
+            response.set_cookie(
+                key="access_token",
+                value=str(access),
+                httponly=True,
+                secure=True,
+                samesite="Lax",
+                max_age=60 * 60 * 24 * 10,  # 10 kun
+                domain=".kassalite.uz"
+            )
+            response.set_cookie(
+                key="refresh_token",
+                value=str(refresh),
+                httponly=True,
+                secure=True,
+                samesite="Lax",
+                max_age=60 * 60 * 24 * 30,  # 30 kun
+                domain=".kassalite.uz"
+            )
+        else:
+            response.set_cookie(
+                key="access_token",
+                value=str(access),
+                httponly=True,
+                samesite="Lax",
+                max_age=60 * 60 * 24 * 10,  # 10 kun
+            )
+            response.set_cookie(
+                key="refresh_token",
+                value=str(refresh),
+                httponly=True,
+                samesite="Lax",
+                max_age=60 * 60 * 24 * 30,  # 30 kun
+            )
         response.status_code = 302
         response["Location"] = f"{SECURITY.redirect_url}"
 
@@ -101,24 +118,40 @@ class UserTelegramVerifyView(APIView):
             access = verify_serializer.to_representation(user).get("access_token")
             refresh = verify_serializer.to_representation(user).get("refresh_token")
             response = Response(data=verify_serializer.to_representation(user))
-            response.set_cookie(
-                key="access_token",
-                value=str(access),
-                httponly=True,
-                secure=True,
-                samesite="Lax",
-                max_age=60 * 60 * 24 * 10,
-                domain=".kassalite.uz"
-            )
-            response.set_cookie(
-                key="refresh_token",
-                value=str(refresh),
-                httponly=True,
-                secure=True,
-                samesite="Lax",
-                max_age=60 * 60 * 24 * 30,
-                domain=".kassalite.uz"
-            )
+            if self.request.is_secure():
+                response.set_cookie(
+                    key="access_token",
+                    value=str(access),
+                    httponly=True,
+                    secure=True,
+                    samesite="Lax",
+                    max_age=60 * 60 * 24 * 10,  # 10 kun
+                    domain=".kassalite.uz"
+                )
+                response.set_cookie(
+                    key="refresh_token",
+                    value=str(refresh),
+                    httponly=True,
+                    secure=True,
+                    samesite="Lax",
+                    max_age=60 * 60 * 24 * 30,  # 30 kun
+                    domain=".kassalite.uz"
+                )
+            else:
+                response.set_cookie(
+                    key="access_token",
+                    value=str(access),
+                    httponly=True,
+                    samesite="Lax",
+                    max_age=60 * 60 * 24 * 10,  # 10 kun
+                )
+                response.set_cookie(
+                    key="refresh_token",
+                    value=str(refresh),
+                    httponly=True,
+                    samesite="Lax",
+                    max_age=60 * 60 * 24 * 30,  # 30 kun
+                )
             return response
         else:
             return Response(data=verify_serializer.errors, status=400)
@@ -140,7 +173,8 @@ class LogoutView(APIView):
 
         response = Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
 
-        response.delete_cookie('access_token', domain=".kassalite.uz")
-        response.delete_cookie('refresh_token', domain=".kassalite.uz")
+        if self.request.is_secure():
+            response.delete_cookie('access_token', domain=".kassalite.uz")
+            response.delete_cookie('refresh_token', domain=".kassalite.uz")
 
         return response
